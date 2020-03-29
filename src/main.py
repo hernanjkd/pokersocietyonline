@@ -8,7 +8,8 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from models import db
-#from models import Person
+import requests
+
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -28,14 +29,29 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
+@app.route('/mailgun', methods=['POST'])
+def mailgun():
+    emails = request.get_json().get('emails')
+    if emails is None:
+        return 'Send {"emails":[]}'
 
-    response_body = {
-        "hello": "world"
-    }
+    key = os.environ.get('MAILGUN_API_KEY')
+    domain = os.environ.get('MAILGUN_DOMAIN')
 
-    return jsonify(response_body), 200
+    logs = []
+    for email in emails:
+        ok = requests.post(f'https://api.mailgun.net/v3/{domain}/messages',
+            auth=('api', key),
+            data={
+                'from': f'{domain} <mailgun@swapprofit.herokuapp.com>',
+                'to': email,
+                'subject': 'Testing',
+                'text': 'Hello World',
+                'html': '<h1>Hello World</h1>'
+            }).status_code == 200
+        logs.append({'email':email,'ok':ok})
+
+    return jsonify(logs)
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
