@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
+from admin import SetupAdmin
 from utils import APIException, generate_sitemap
 from models import db, Users
 import requests
@@ -15,6 +16,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db)
 db.init_app(app)
 CORS(app)
+SetupAdmin(app)
 
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
