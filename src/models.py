@@ -4,9 +4,10 @@ db = SQLAlchemy()
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(50), nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
+    username = db.Column(db.String(50))
     
     referral_emails = db.relationship('Referrals', back_populates='user')
 
@@ -16,9 +17,10 @@ class Users(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
+            'email': self.email,
+            'username': self.username,
             'referral_emails': [x.email for x in self.referral_emails]
         }
 
