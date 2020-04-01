@@ -10,6 +10,7 @@ import requests
 
 
 app = Flask(__name__)
+app.secret_key = os.environ['FLASK_KEY']
 app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -56,7 +57,7 @@ def payment_data():
     refs = Referrals.query.filter_by( referral_id=j['referral_id'] )
     referral_emails = [x.email for x in refs]
     emails = [
-        'aylinmaria2501@hotmail.com',#'play@thepokersociety.com',
+        'play@thepokersociety.com',
         *referral_emails
     ]
 
