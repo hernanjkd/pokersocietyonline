@@ -25,7 +25,7 @@ def handle_invalid_usage(error):
 
 @app.route('/payment/methods', methods=['POST'])
 def payment_data():
-
+    
     j = request.get_json()
 
     # Validation
@@ -37,7 +37,7 @@ def payment_data():
 
     user = Users.query.filter_by( email=j['email'] ).first()
     if user is not None:
-        raise APIException('This email has already been saved')
+        raise APIException('This email is already in our system')
 
     # Arrange data
     user_data = {
@@ -65,11 +65,13 @@ def payment_data():
         data={
             'from': 'PokerSocietyOnline<play@thepokersocietyonline.com>',
             'to': emails,
-            'subject': 'Play Online',
+            'subject': 'PokerBros New User',
             'text': render_template('payment_methods.txt'),
             'html': render_template('payment_methods.html', 
-                referral_emails=' '.join(referral_emails),
-                **user_data )
+                **user_data,
+                referral_emails = ' '.join(referral_emails) \
+                    if referral_emails else None
+            )
         })
     if not resp.ok:
         raise APIException('There was a problem processing your information')
