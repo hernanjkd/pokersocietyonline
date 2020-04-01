@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, url_for
+from flask import Flask, request, jsonify, url_for, render_template
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -39,14 +39,25 @@ def payment_data():
     if user is not None:
         raise APIException('This email has already been saved')
 
+    # Arrange data
+    user_data = {
+        'first_name': j['first_name'],
+        'last_name': j['last_name'],
+        'username': j['username'],
+        'email': j['email'],
+        'referral_id': j['referral_id'] or None,
+        'payment_types': ' '.join( j['payment_types'] )
+    }
+
     # Send email
     key = os.environ.get('MAILGUN_API_KEY')
     domain = os.environ.get('MAILGUN_DOMAIN')
 
     refs = Referrals.query.filter_by( referral_id=j['referral_id'] )
+    referral_emails = [x.email for x in refs]
     emails = [
-        'play@thepokersociety.com',
-        *[x.email for x in refs]
+        'aylinmaria2501@hotmail.com',#'play@thepokersociety.com',
+        *referral_emails
     ]
 
     resp = requests.post(f'https://api.mailgun.net/v3/{domain}/messages',
@@ -55,21 +66,16 @@ def payment_data():
             'from': 'PokerSocietyOnline<play@thepokersocietyonline.com>',
             'to': emails,
             'subject': 'Play Online',
-            'text': 'Hello World',
-            'html': '<h1>Mr Lou</h1>'
+            'text': render_template('payment_methods.txt'),
+            'html': render_template('payment_methods.html', 
+                referral_emails=' '.join(referral_emails),
+                **user_data )
         })
     if not resp.ok:
         raise APIException('There was a problem processing your information')
 
     # Save data
-    db.session.add( Users(
-        first_name = j['first_name'],
-        last_name = j['last_name'],
-        username = j['username'],
-        email = j['email'],
-        referral_id = j['referral_id'] or None,
-        payment_types = ' '.join( j['payment_types'] )
-    ))
+    db.session.add( Users( **user_data ))
     db.session.commit()
 
     return jsonify({'processed': True})
