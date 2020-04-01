@@ -36,16 +36,18 @@ def payment_data():
         if prop not in j:
             raise APIException('Missing property '+ prop)
 
+    email = j['email'].lower()
+
     user = Users.query.filter_by( email=j['email'] ).first()
     if user is not None:
         raise APIException('This email is already in our system')
 
     # Arrange data
     user_data = {
-        'first_name': j['first_name'],
-        'last_name': j['last_name'],
+        'first_name': j['first_name'].title(),
+        'last_name': j['last_name'].title(),
         'username': j['username'],
-        'email': j['email'],
+        'email': email,
         'referral_id': j['referral_id'] or None,
         'payment_types': ' '.join( j['payment_types'] )
     }
