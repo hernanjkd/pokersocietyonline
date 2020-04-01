@@ -5,7 +5,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from admin import SetupAdmin
 from utils import APIException, generate_sitemap
-from models import db, Users
+from models import db, Users, Referrals
 import requests
 
 
@@ -23,12 +23,56 @@ def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
 
-@app.route('/payment/data', methods=['POST'])
+@app.route('/payment/methods', methods=['POST'])
 def payment_data():
 
     j = request.get_json()
 
-    return jsonify(j)
+    # Validation
+    checklst = ['first_name', 'last_name', 'username','email',
+        'referral_id', 'payment_types']
+    for prop in checklst:
+        if prop not in j:
+            raise APIException('Missing property '+ prop)
+
+    user = Users.query.filter_by( email=j['email'] ).first()
+    if user is not None:
+        raise APIException('This email has already been saved')
+
+    # Send email
+    key = os.environ.get('MAILGUN_API_KEY')
+    domain = os.environ.get('MAILGUN_DOMAIN')
+
+    refs = Referrals.query.filter_by( referral_id=j['referral_id'] )
+    emails = [
+        'play@thepokersociety.com',
+        *[x.email for x in refs]
+    ]
+
+    resp = requests.post(f'https://api.mailgun.net/v3/{domain}/messages',
+        auth=('api', key),
+        data={
+            'from': 'PokerSocietyOnline<play@thepokersocietyonline.com>',
+            'to': emails,
+            'subject': 'Play Online',
+            'text': 'Hello World',
+            'html': '<h1>Mr Lou</h1>'
+        })
+    if not resp.ok:
+        raise APIException('There was a problem processing your information')
+
+    # Save data
+    db.session.add( Users(
+        first_name = j['first_name'],
+        last_name = j['last_name'],
+        username = j['username'],
+        email = j['email'],
+        referral_id = j['referral_id'] or None,
+        payment_types = ' '.join( j['payment_types'] )
+    ))
+    db.session.commit()
+
+    return jsonify({'processed': True})
 
 
 @app.route('/mailgun', methods=['POST'])
@@ -57,5 +101,4 @@ def mailgun():
 
 
 if __name__ == '__main__':
-    PORT = int(os.environ.get('PORT', 3000))
-    app.run(host='0.0.0.0', port=PORT, debug=False)
+    app.run(debug=True)
