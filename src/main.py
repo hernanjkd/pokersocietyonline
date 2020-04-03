@@ -7,6 +7,9 @@ from admin import SetupAdmin
 from utils import APIException, generate_sitemap
 from models import db, Users, Referrals
 import requests
+import cloudinary
+import cloudinary.uploader
+import cloudinary_url
 
 
 app = Flask(__name__)
@@ -84,6 +87,27 @@ def payment_data():
     db.session.commit()
 
     return jsonify({'processed': True})
+
+
+@app.route('/leaderboard/images', methods=['GET','POST'])
+def handle_images():
+
+    print( cloudinary_url("leaderboard.json", type="list") )
+
+    return 'check'
+
+    # image = request.files['image']
+
+    # result = cloudinary.uploader.upload(
+    #     image,
+    #     public_id = image.filename,
+    #     crop = 'limit',
+    #     width = 450,
+    #     height = 450,
+    #     tags = [ 'leaderboard' ]
+    # )
+# cloudinary://146164155398732:QDULkfIQWFtPJtIYQCQwVRGOVFE@hvd3ubzle
+    # user.profile.profile_pic_url = result['secure_url']
 
 
 @app.route('/mailgun', methods=['POST'])
