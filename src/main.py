@@ -34,7 +34,7 @@ def payment_data():
 
     # Validation
     checklst = ['first_name', 'last_name', 'username','email',
-        'referral_id', 'payment_tags']
+        'referral_id', 'payment_types']
     for prop in checklst:
         if prop not in j:
             raise APIException('Missing property '+ prop)
@@ -52,7 +52,7 @@ def payment_data():
         'username': j['username'],
         'email': email,
         'referral_id': j['referral_id'] or None,
-        'payment_tags': ' '.join( j['payment_tags'] )
+        'payment_types': ' '.join( j['payment_types'] )
     }
 
     # Send email
@@ -112,7 +112,7 @@ def handle_images():
         height = 450,
         tags = [ 'results' if tag else 'leaderboard' ]
     )
-    print(result)
+    
     return jsonify({'message':'Image processed'})
 
 
