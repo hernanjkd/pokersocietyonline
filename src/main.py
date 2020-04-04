@@ -89,7 +89,7 @@ def payment_data():
     return jsonify({'processed': True})
 
 
-@app.route('/leaderboard/images', methods=['GET','POST'])
+@app.route('/upload/files', methods=['GET','POST'])
 def handle_images():
 
     if request.method == 'GET':

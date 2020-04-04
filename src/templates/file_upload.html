@@ -108,7 +108,7 @@ function upload() {
         logContent += `Processing... ${file.name}<br />`;
         log.innerHTML = logContent;
         
-        fetch('http://localhost:5000/leaderboard/images', {
+        fetch('https://pokersocietyonline.herokuapp.com/upload/files', {
             method: 'POST',
             body: data
         })
