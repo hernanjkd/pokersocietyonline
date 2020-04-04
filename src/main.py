@@ -10,6 +10,7 @@ from models import db, Users, Referrals
 import requests
 import cloudinary
 import cloudinary.uploader
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -116,16 +117,33 @@ def handle_images():
     return jsonify({'message':'Image processed'})
 
 
-@app.route('/images/<type>')
-def get_images(type):
+@app.route('/tournament/results')
+def get_images():
     
     key = os.environ['CLOUDINARY_API_KEY']
     secret = os.environ['CLOUDINARY_API_SECRET']
-    url = f'https://api.cloudinary.com/v1_1/hvd3ubzle/resources/image/tags/{type}?max_results=1000'
+    url = lambda type: \
+        f'https://api.cloudinary.com/v1_1/hvd3ubzle/resources/image/tags/{type}?max_results=1000'
     
-    r = requests.get(url, auth=(key, secret))
+    results = requests.get(url('results'), auth=(key, secret)).json()
+    leaderboard = requests.get(url('leaderboard'), auth=(key, secret)).json()
     
-    return jsonify(r.json())
+    r = { 'results': [], 'leaderboard': [] }
+
+    for x in results['resources']:
+        n = x['public_id']
+        r['results'].append({
+            'url': x['secure_url'],
+            'title': n[ : n.index(' -') ]
+        })
+    for x in leaderboard['resources']:
+        name = x['public_id']
+        r['leaderboard'].append({
+            'url': x['secure_url'],
+            'title': n[ : n.index(' -') ]
+        })
+
+    return jsonify(r)
 
 
 @app.route('/mailgun', methods=['POST'])
