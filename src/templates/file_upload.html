@@ -97,7 +97,7 @@ function upload() {
         logContent += `Processing... ${file.name}<br />`;
         log.innerHTML = logContent;
         
-        fetch('{{ host }}/upload/files', {
+        fetch('http://localhost:5000/leaderboard/images', {
             method: 'POST',
             body: data
         })

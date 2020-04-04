@@ -1,3 +1,4 @@
+import re
 import os
 from flask import Flask, request, jsonify, url_for, render_template
 from flask_migrate import Migrate
@@ -96,15 +97,21 @@ def handle_images():
 
     image = request.files['image']
 
+    regex = r'(.*)\.'
+    filename = re.search(regex, image.filename)
+
+    if filename is None:
+        return jsonify({'error':'Filename is incorrect'})
+
     result = cloudinary.uploader.upload(
         image,
-        public_id = image.filename,
+        public_id = filename.group(1),
         crop = 'limit',
         width = 450,
         height = 450,
         tags = [ 'leaderboard' ]
     )
-
+    print(result)
     return jsonify({'message':'Image processed'})
 
 
