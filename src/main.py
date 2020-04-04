@@ -34,7 +34,7 @@ def payment_data():
 
     # Validation
     checklst = ['first_name', 'last_name', 'username','email',
-        'referral_id', 'payment_types']
+        'referral_id', 'payment_tags']
     for prop in checklst:
         if prop not in j:
             raise APIException('Missing property '+ prop)
@@ -52,7 +52,7 @@ def payment_data():
         'username': j['username'],
         'email': email,
         'referral_id': j['referral_id'] or None,
-        'payment_types': ' '.join( j['payment_types'] )
+        'payment_tags': ' '.join( j['payment_tags'] )
     }
 
     # Send email
@@ -95,7 +95,8 @@ def handle_images():
     if request.method == 'GET':
         return render_template('file_upload.html')
 
-    image = request.files['image']
+    tag = request.files.get('results')
+    image = tag if tag else request.files.get('leaderboard')
 
     regex = r'(.*)\.'
     filename = re.search(regex, image.filename)
@@ -109,7 +110,7 @@ def handle_images():
         crop = 'limit',
         width = 450,
         height = 450,
-        tags = [ 'leaderboard' ]
+        tags = [ 'results' if tag else 'leaderboard' ]
     )
     print(result)
     return jsonify({'message':'Image processed'})

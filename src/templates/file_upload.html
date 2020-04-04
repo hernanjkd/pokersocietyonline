@@ -4,7 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="UTF-8">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <title>PokerSocietyFileUpload</title>
+        <title>FileUpload - PokerSociety</title>
         <style>
             .highlight {
                 box-shadow: 0 0 5px rgba(81, 203, 238, 1);
@@ -18,7 +18,14 @@
     </head>
     <body>
         <button class="btn btn-light text-dark m-3" onclick="logout()">LOG OUT</button>
-        <div id="page" class="mt-5 p-5 d-flex justify-content-center">
+        <div class="mt-5 d-flex justify-content-center align-items-center" 
+            style="font-size: 1.5em">
+            <input type="radio" name="type" value="results" checked class="mr-2" />
+                Results
+            <input type="radio" name="type" value="leaderboard" class="ml-5 pl-3 mr-2" />
+                Leaderboard
+        </div>
+        <div id="page" class="p-5 pt-0 d-flex justify-content-center">
             <div class="text-right">
                 <div id="drop-area" class="d-flex align-items-center justify-content-center un-highlight" 
                     style="width:350px;height:250px;">
@@ -90,8 +97,12 @@ function upload() {
         let file = files.shift();
         displayFileData();
 
+        // Radio button results or leaderboard
+        let type = document.querySelector('[value=results]');
+        type = type.checked ? 'results' : 'leaderboard';
+
         let data = new FormData();
-        data.append('image', file);
+        data.append(type, file);
 
         log.className = 'border p-2';
         logContent += `Processing... ${file.name}<br />`;
@@ -170,8 +181,8 @@ function clearData() {
 }
 
 function logout() {
-    document.cookie = `pokersociety-jwt=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
-    window.location = '{{ host }}';
+    // document.cookie = `pokersociety-jwt=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+    // window.location = '{{ host }}';
 }
         </script>
     </body>
