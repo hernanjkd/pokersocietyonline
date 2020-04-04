@@ -91,7 +91,7 @@ function upload() {
         displayFileData();
 
         let data = new FormData();
-        data.append('excel', file);
+        data.append('image', file);
 
         log.className = 'border p-2';
         logContent += `Processing... ${file.name}<br />`;

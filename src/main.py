@@ -9,7 +9,6 @@ from models import db, Users, Referrals
 import requests
 import cloudinary
 import cloudinary.uploader
-import cloudinary_url
 
 
 app = Flask(__name__)
@@ -92,22 +91,21 @@ def payment_data():
 @app.route('/leaderboard/images', methods=['GET','POST'])
 def handle_images():
 
-    print( cloudinary_url("leaderboard.json", type="list") )
+    if request.method == 'GET':
+        return render_template('file_upload.html')
 
-    return 'check'
+    image = request.files['image']
 
-    # image = request.files['image']
+    result = cloudinary.uploader.upload(
+        image,
+        public_id = image.filename,
+        crop = 'limit',
+        width = 450,
+        height = 450,
+        tags = [ 'leaderboard' ]
+    )
 
-    # result = cloudinary.uploader.upload(
-    #     image,
-    #     public_id = image.filename,
-    #     crop = 'limit',
-    #     width = 450,
-    #     height = 450,
-    #     tags = [ 'leaderboard' ]
-    # )
-# cloudinary://146164155398732:QDULkfIQWFtPJtIYQCQwVRGOVFE@hvd3ubzle
-    # user.profile.profile_pic_url = result['secure_url']
+    return jsonify({'message':'Image processed'})
 
 
 @app.route('/mailgun', methods=['POST'])
