@@ -116,6 +116,18 @@ def handle_images():
     return jsonify({'message':'Image processed'})
 
 
+@app.route('/images/<type>')
+def get_images(type):
+    
+    key = os.environ['CLOUDINARY_API_KEY']
+    secret = os.environ['CLOUDINARY_API_SECRET']
+    url = f'https://api.cloudinary.com/v1_1/hvd3ubzle/resources/image/tags/{type}?max_results=1000'
+    
+    r = requests.get(url, auth=(key, secret))
+    
+    return jsonify(r.json())
+
+
 @app.route('/mailgun', methods=['POST'])
 def mailgun():
     emails = request.get_json().get('emails')
