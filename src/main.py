@@ -137,7 +137,7 @@ def get_images():
             'title': n[ : n.index(' -') ]
         })
     for x in leaderboard['resources']:
-        name = x['public_id']
+        n = x['public_id']
         r['leaderboard'].append({
             'url': x['secure_url'],
             'title': n[ : n.index(' -') ]
