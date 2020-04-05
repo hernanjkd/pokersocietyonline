@@ -108,9 +108,7 @@ def handle_images():
     result = cloudinary.uploader.upload(
         image,
         public_id = filename.group(1),
-        crop = 'limit',
-        width = 450,
-        height = 450,
+        crop = 'scale',
         tags = [ 'results' if tag else 'leaderboard' ]
     )
     
