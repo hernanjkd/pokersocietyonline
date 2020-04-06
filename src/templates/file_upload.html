@@ -110,8 +110,8 @@ function upload() {
         logContent += `Processing... ${file.name}<br />`;
         log.innerHTML = logContent;
         
-        let url = 'http://127.0.0.1:9000/upload/files';
-        // let url = 'https://pokersocietyonline.herokuapp.com/upload/files';
+        // let url = 'http://127.0.0.1:9000/upload/files';
+        let url = 'https://pokersocietyonline.herokuapp.com/upload/files';
         fetch(url, {
             method: 'POST',
             body: data
@@ -185,7 +185,7 @@ function getRadioValue() {
 function addTag(x, tag) {
     let name = x.substr(0, x.indexOf('.'));
     let ext = x.substr(x.indexOf('.'));
-    return name + ' -' + tag + ext;
+    return name +' - '+ tag + ext;
 }
 
 function logout() {

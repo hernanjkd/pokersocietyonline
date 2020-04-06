@@ -101,8 +101,8 @@ def handle_images():
     img = request.files['image']
 
     public_id = img.filename[ : img.filename.index('.') ]
-    tag = public_id[ public_id.index('-')+1 : ]
-
+    tag = public_id[ public_id.index('- ')+1 : ]
+    
     result = cloudinary.uploader.upload(
         img,
         public_id = public_id,
@@ -122,7 +122,7 @@ def get_images():
         f'https://api.cloudinary.com/v1_1/hvd3ubzle/resources/image/tags/{tag}?max_results=1000'
     
 
-    data = { 'results': [], 'leaderboard': [] }
+    data = { 'results': [], 'leaderboard': [], 'flyer': [] }
     
     for tag in data.keys():
         
@@ -141,11 +141,13 @@ def get_images():
             })
 
         # sort data
-        data[tag] = sorted( data[tag], 
-            key = cmp_to_key( ut.sort_by_date ) )
+        if tag != 'flyer':
+            data[tag] = sorted( data[tag], 
+                key = cmp_to_key( ut.sort_by_date ) )
 
 
     return jsonify(data)
+
 
 
 @app.route('/mailgun', methods=['POST'])
