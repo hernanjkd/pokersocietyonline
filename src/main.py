@@ -98,33 +98,17 @@ def handle_images():
     if request.method == 'GET':
         return render_template('file_upload.html')
 
-    img = request.files['images']
+    img = request.files['image']
 
-    regex1 = r'(.*)\.'
-    public_id = re.search(regex1, img.filename).group(1)
-    print('hellooooooooooooo')
-    return jsonify({'error':img.filename})
+    public_id = img.filename[ : img.filename.index('.') ]
+    tag = public_id[ public_id.index('-')+1 : ]
 
-    # if 'Week of ' not in public_id:
-
-
-    # if 'results' in public_id:
-    #     tag = 'results'
-    # elif 'leaderboard' in public_id:
-    #     tag = 'leaderboard'
-    # else:
-    #     return jsonify({'error':'Filename must contain "results" or "leaderboard"'})
-
-
-    # result = cloudinary.uploader.upload(
-    #     image,
-    #     public_id = filename.group(1),
-    #     crop = 'scale',
-    #     tags = [ 'results' if tag else 'leaderboard' ],
-    #     eager = [
-    #         {"width": 600, "crop": "scale"}
-    #     ]
-    # )
+    result = cloudinary.uploader.upload(
+        img,
+        public_id = public_id,
+        crop = 'scale',
+        tags = [ tag ]
+    )
     
     return jsonify({'message':'Image processed'})
 

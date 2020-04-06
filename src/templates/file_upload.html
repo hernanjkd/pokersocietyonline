@@ -100,17 +100,17 @@ function upload() {
         displayFileData();
         
         // Create filename w appropiate tag
-        // let tag = getRadioValue();
-        // let filename = addTag(file.name, tag);
+        let tag = getRadioValue();
+        let filename = addTag(file.name, tag);
 
         let data = new FormData();
-        data.append(type, file);
+        data.append('image', file, filename);
 
         log.className = 'border p-2';
         logContent += `Processing... ${file.name}<br />`;
         log.innerHTML = logContent;
         
-        let url = 'http://localhost:9000/upload/files';
+        let url = 'http://127.0.0.1:9000/upload/files';
         // let url = 'https://pokersocietyonline.herokuapp.com/upload/files';
         fetch(url, {
             method: 'POST',
