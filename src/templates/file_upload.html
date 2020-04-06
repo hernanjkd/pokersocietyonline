@@ -20,10 +20,12 @@
         <button class="btn btn-light text-dark m-3" onclick="logout()">LOG OUT</button>
         <div class="mt-5 d-flex justify-content-center align-items-center" 
             style="font-size: 1.5em">
-            <input type="radio" name="type" value="results" checked class="mr-2" />
+            <input type="radio" name="tag" value="results" checked class="mr-2" />
                 Results
-            <input type="radio" name="type" value="leaderboard" class="ml-5 pl-3 mr-2" />
+            <input type="radio" name="tag" value="leaderboard" class="ml-5 pl-3 mr-2" />
                 Leaderboard
+            <input type="radio" name="tag" value="flyer" class="ml-5 pl-3 mr-2" />
+                Flyer
         </div>
         <div id="page" class="p-5 pt-0 d-flex justify-content-center">
             <div class="text-right">
@@ -96,10 +98,10 @@ function upload() {
         
         let file = files.shift();
         displayFileData();
-
-        // Radio button results or leaderboard
-        let type = document.querySelector('[value=results]');
-        type = type.checked ? 'results' : 'leaderboard';
+        
+        // Create filename w appropiate tag
+        // let tag = getRadioValue();
+        // let filename = addTag(file.name, tag);
 
         let data = new FormData();
         data.append(type, file);
@@ -108,7 +110,9 @@ function upload() {
         logContent += `Processing... ${file.name}<br />`;
         log.innerHTML = logContent;
         
-        fetch('https://pokersocietyonline.herokuapp.com/upload/files', {
+        let url = 'http://localhost:9000/upload/files';
+        // let url = 'https://pokersocietyonline.herokuapp.com/upload/files';
+        fetch(url, {
             method: 'POST',
             body: data
         })
@@ -122,14 +126,6 @@ function upload() {
                 logContent += errorMessage( msg );
             }
             log.innerHTML = logContent;
-            
-            // Open new tab to download file
-            if (resp.download) {
-                window.open(
-                    '{{ host }}/download/file/'+ file.name,
-                    Date.now(), // 1584681630463 (must be unique for multiple windows to open)
-                    'resizable, height=200px, width=300px' )
-            }
 
             // Continue uploading
             upload();
@@ -178,6 +174,18 @@ function clearData() {
     displayFileData();
     log.className = 'border d-flex align-items-center justify-content-center';
     log.innerHTML = `<h2 style="color:rgb(181, 181, 181)">LOG</h2>`;
+}
+
+function getRadioValue() {
+    let tags = document.querySelectorAll('[name=tag]');
+    for (let e of tags)
+        if (e.checked) return e.value;
+}
+
+function addTag(x, tag) {
+    let name = x.substr(0, x.indexOf('.'));
+    let ext = x.substr(x.indexOf('.'));
+    return name + ' -' + tag + ext;
 }
 
 function logout() {

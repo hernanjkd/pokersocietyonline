@@ -1,16 +1,18 @@
-import re
-import os
 from flask import Flask, request, jsonify, url_for, render_template
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from admin import SetupAdmin
-from utils import APIException, generate_sitemap
+from datetime import datetime as dt
+from functools import cmp_to_key
 from models import db, Users, Referrals
-import requests
+from utils import APIException
+import utils as ut
+import re
+import os
 import cloudinary
 import cloudinary.uploader
-from datetime import datetime
+import requests
 
 
 app = Flask(__name__)
@@ -96,21 +98,33 @@ def handle_images():
     if request.method == 'GET':
         return render_template('file_upload.html')
 
-    tag = request.files.get('results')
-    image = tag if tag else request.files.get('leaderboard')
+    img = request.files['images']
 
-    regex = r'(.*)\.'
-    filename = re.search(regex, image.filename)
+    regex1 = r'(.*)\.'
+    public_id = re.search(regex1, img.filename).group(1)
+    print('hellooooooooooooo')
+    return jsonify({'error':img.filename})
 
-    if filename is None:
-        return jsonify({'error':'Filename is incorrect'})
+    # if 'Week of ' not in public_id:
 
-    result = cloudinary.uploader.upload(
-        image,
-        public_id = filename.group(1),
-        crop = 'scale',
-        tags = [ 'results' if tag else 'leaderboard' ]
-    )
+
+    # if 'results' in public_id:
+    #     tag = 'results'
+    # elif 'leaderboard' in public_id:
+    #     tag = 'leaderboard'
+    # else:
+    #     return jsonify({'error':'Filename must contain "results" or "leaderboard"'})
+
+
+    # result = cloudinary.uploader.upload(
+    #     image,
+    #     public_id = filename.group(1),
+    #     crop = 'scale',
+    #     tags = [ 'results' if tag else 'leaderboard' ],
+    #     eager = [
+    #         {"width": 600, "crop": "scale"}
+    #     ]
+    # )
     
     return jsonify({'message':'Image processed'})
 
@@ -120,28 +134,34 @@ def get_images():
     
     key = os.environ['CLOUDINARY_API_KEY']
     secret = os.environ['CLOUDINARY_API_SECRET']
-    url = lambda type: \
-        f'https://api.cloudinary.com/v1_1/hvd3ubzle/resources/image/tags/{type}?max_results=1000'
+    url = lambda tag: \
+        f'https://api.cloudinary.com/v1_1/hvd3ubzle/resources/image/tags/{tag}?max_results=1000'
     
-    results = requests.get(url('results'), auth=(key, secret)).json()
-    leaderboard = requests.get(url('leaderboard'), auth=(key, secret)).json()
+
+    data = { 'results': [], 'leaderboard': [] }
     
-    r = { 'results': [], 'leaderboard': [] }
+    for tag in data.keys():
+        
+        # requests cloudinary
+        r = requests.get(url(tag), auth=(key, secret))
+        if not r.ok:
+            raise APIException('Problem requesting from cloudinary')
+        
+        # prepare data
+        lst = r.json()['resources']
+        for img in lst:
+            n = img['public_id']
+            data[tag].append({
+                'url': img['secure_url'],
+                'title': n[ : n.index(' -') ]
+            })
 
-    for x in results['resources']:
-        n = x['public_id']
-        r['results'].append({
-            'url': x['secure_url'],
-            'title': n[ : n.index(' -') ]
-        })
-    for x in leaderboard['resources']:
-        n = x['public_id']
-        r['leaderboard'].append({
-            'url': x['secure_url'],
-            'title': n[ : n.index(' -') ]
-        })
+        # sort data
+        data[tag] = sorted( data[tag], 
+            key = cmp_to_key( ut.sort_by_date ) )
 
-    return jsonify(r)
+
+    return jsonify(data)
 
 
 @app.route('/mailgun', methods=['POST'])
