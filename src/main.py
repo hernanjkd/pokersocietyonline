@@ -138,7 +138,7 @@ def get_images():
             title = n[ : n.index(' -') ]
 
             if tag == 'flyer':
-                data[tag][title] = { 'url': img['secure_url'] }
+                data[tag][title] = img['secure_url']
             else:
                 data[tag].append({
                     'url': img['secure_url'],
