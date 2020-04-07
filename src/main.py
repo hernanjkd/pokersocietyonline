@@ -122,7 +122,7 @@ def get_images():
         f'https://api.cloudinary.com/v1_1/hvd3ubzle/resources/image/tags/{tag}?max_results=1000'
     
 
-    data = { 'results': [], 'leaderboard': [], 'flyer': [] }
+    data = { 'results': [], 'leaderboard': [], 'flyer': {} }
     
     for tag in data.keys():
         
@@ -135,10 +135,15 @@ def get_images():
         lst = r.json()['resources']
         for img in lst:
             n = img['public_id']
-            data[tag].append({
-                'url': img['secure_url'],
-                'title': n[ : n.index(' -') ]
-            })
+            title = n[ : n.index(' -') ]
+
+            if tag == 'flyer':
+                data[tag][title] = img['secure_url']
+            else:
+                data[tag].append({
+                    'url': img['secure_url'],
+                    'title': title
+                })
 
         # sort data
         if tag != 'flyer':
