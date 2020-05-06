@@ -145,7 +145,7 @@ def get_images():
                 })
 
         # sort data
-        if tag != 'flyer':
+        if 'Week of ' in tag:
             data[tag] = sorted( data[tag], 
                 key = cmp_to_key( ut.sort_by_date ) )
 
