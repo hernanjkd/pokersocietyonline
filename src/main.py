@@ -3,7 +3,6 @@ from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from admin import SetupAdmin
-from datetime import datetime as dt
 from functools import cmp_to_key
 from models import db, Users, Referrals
 from utils import APIException
@@ -152,7 +151,6 @@ def get_images():
 
 
     return jsonify(data)
-
 
 
 @app.route('/mailgun', methods=['POST'])
